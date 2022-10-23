@@ -1,5 +1,9 @@
 #include <torch/torch.h>
 
+#ifndef AT_CHECK
+#define AT_CHECK TORCH_CHECK
+#endif
+
 // CUDA forward declarations
 
 at::Tensor create_texture_image_cuda(

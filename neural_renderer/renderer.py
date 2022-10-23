@@ -13,6 +13,7 @@ class Renderer(nn.Module):
                  fill_back=True, camera_mode='projection',
                  K=None, R=None, t=None, dist_coeffs=None, orig_size=1024,
                  perspective=True, viewing_angle=30, camera_direction=[0,0,1],
+                 camera_up=[0,1,0],
                  near=0.1, far=100,
                  light_intensity_ambient=0.5, light_intensity_directional=0.5,
                  light_color_ambient=[1,1,1], light_color_directional=[1,1,1],
@@ -40,11 +41,13 @@ class Renderer(nn.Module):
             if dist_coeffs is None:
                 self.dist_coeffs = torch.cuda.FloatTensor([[0., 0., 0., 0., 0.]])
             self.orig_size = orig_size
+            self.camera_up = camera_up
         elif self.camera_mode in ['look', 'look_at']:
             self.perspective = perspective
             self.viewing_angle = viewing_angle
             self.eye = [0, 0, -(1. / math.tan(math.radians(self.viewing_angle)) + 1)]
-            self.camera_direction = [0, 0, 1]
+            self.camera_direction = camera_direction
+            self.camera_up = camera_up
         else:
             raise ValueError('Camera mode has to be one of projection, look or look_at')
 
@@ -83,16 +86,16 @@ class Renderer(nn.Module):
 
         # fill back
         if self.fill_back:
-            faces = torch.cat((faces, faces[:, :, list(reversed(range(faces.shape[-1])))]), dim=1)
+            faces = torch.cat((faces, faces.flip(dims=[2])), dim=1)
 
         # viewpoint transformation
         if self.camera_mode == 'look_at':
-            vertices = nr.look_at(vertices, self.eye)
+            vertices = nr.look_at(vertices, self.eye, up=self.camera_up)
             # perspective transformation
             if self.perspective:
                 vertices = nr.perspective(vertices, angle=self.viewing_angle)
         elif self.camera_mode == 'look':
-            vertices = nr.look(vertices, self.eye, self.camera_direction)
+            vertices = nr.look(vertices, self.eye, self.camera_direction, up=self.camera_up)
             # perspective transformation
             if self.perspective:
                 vertices = nr.perspective(vertices, angle=self.viewing_angle)
@@ -118,16 +121,16 @@ class Renderer(nn.Module):
 
         # fill back
         if self.fill_back:
-            faces = torch.cat((faces, faces[:, :, list(reversed(range(faces.shape[-1])))]), dim=1).detach()
+            faces = torch.cat((faces, faces.flip(dims=[2])), dim=1).detach()
 
         # viewpoint transformation
         if self.camera_mode == 'look_at':
-            vertices = nr.look_at(vertices, self.eye)
+            vertices = nr.look_at(vertices, self.eye, up=self.camera_up)
             # perspective transformation
             if self.perspective:
                 vertices = nr.perspective(vertices, angle=self.viewing_angle)
         elif self.camera_mode == 'look':
-            vertices = nr.look(vertices, self.eye, self.camera_direction)
+            vertices = nr.look(vertices, self.eye, self.camera_direction, up=self.camera_up)
             # perspective transformation
             if self.perspective:
                 vertices = nr.perspective(vertices, angle=self.viewing_angle)
@@ -152,7 +155,7 @@ class Renderer(nn.Module):
     def render_rgb(self, vertices, faces, textures, K=None, R=None, t=None, dist_coeffs=None, orig_size=None):
         # fill back
         if self.fill_back:
-            faces = torch.cat((faces, faces[:, :, list(reversed(range(faces.shape[-1])))]), dim=1).detach()
+            faces = torch.cat((faces, faces.flip(dims=[2])), dim=1).detach()
             textures = torch.cat((textures, textures.permute((0, 1, 4, 3, 2, 5))), dim=1)
 
         # lighting
@@ -168,12 +171,12 @@ class Renderer(nn.Module):
 
         # viewpoint transformation
         if self.camera_mode == 'look_at':
-            vertices = nr.look_at(vertices, self.eye)
+            vertices = nr.look_at(vertices, self.eye, up=self.camera_up)
             # perspective transformation
             if self.perspective:
                 vertices = nr.perspective(vertices, angle=self.viewing_angle)
         elif self.camera_mode == 'look':
-            vertices = nr.look(vertices, self.eye, self.camera_direction)
+            vertices = nr.look(vertices, self.eye, self.camera_direction, up=self.camera_up)
             # perspective transformation
             if self.perspective:
                 vertices = nr.perspective(vertices, angle=self.viewing_angle)
@@ -200,7 +203,7 @@ class Renderer(nn.Module):
     def render(self, vertices, faces, textures, K=None, R=None, t=None, dist_coeffs=None, orig_size=None):
         # fill back
         if self.fill_back:
-            faces = torch.cat((faces, faces[:, :, list(reversed(range(faces.shape[-1])))]), dim=1).detach()
+            faces = torch.cat((faces, faces.flip(dims=[2])), dim=1).detach()
             textures = torch.cat((textures, textures.permute((0, 1, 4, 3, 2, 5))), dim=1)
 
         # lighting
@@ -216,12 +219,12 @@ class Renderer(nn.Module):
 
         # viewpoint transformation
         if self.camera_mode == 'look_at':
-            vertices = nr.look_at(vertices, self.eye)
+            vertices = nr.look_at(vertices, self.eye, up=self.camera_up)
             # perspective transformation
             if self.perspective:
                 vertices = nr.perspective(vertices, angle=self.viewing_angle)
         elif self.camera_mode == 'look':
-            vertices = nr.look(vertices, self.eye, self.camera_direction)
+            vertices = nr.look(vertices, self.eye, self.camera_direction, up=self.camera_up)
             # perspective transformation
             if self.perspective:
                 vertices = nr.perspective(vertices, angle=self.viewing_angle)

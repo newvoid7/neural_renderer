@@ -2,6 +2,10 @@
 
 #include <vector>
 
+#ifndef AT_CHECK
+#define AT_CHECK TORCH_CHECK
+#endif
+
 // CUDA forward declarations
 
 std::vector<at::Tensor> forward_face_index_map_cuda(
