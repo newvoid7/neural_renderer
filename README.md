@@ -10,17 +10,16 @@ This repo is the minor fixed version of neural-renderer-pytorch forked from [PyT
 5. Updated the [::-1] operation by using flip method in rasterize.py.
 
 ## Requirements
-Python 3.6+ and PyTorch 1.8.0+, gcc 5.0+ (support C++11). Tested on Python 3.9 and PyTorch 1.10.1 as well.
+Python 3.6+ and PyTorch 1.8.0+. Tested on Python 3.9 and PyTorch 1.10.1 as well.
 
 ## Installation
 You can install the package by running
 ```
 python setup.py install
 ```
-Since running install.py requires PyTorch, make sure to install PyTorch before running the above command.
+Since running install.py requires PyTorch, make sure to install PyTorch before running the above command. Needs **gcc 5.0+** also (which supports C++11), to compile the cuda files.
 
 ## Citation
-
 ```
 @InProceedings{kato2018renderer
     title={Neural 3D Mesh Renderer},
