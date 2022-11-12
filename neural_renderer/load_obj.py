@@ -37,7 +37,7 @@ def load_textures(filename_obj, filename_mtl, texture_size, texture_wrapping='RE
     for line in lines:
         if len(line.split()) == 0:
             continue
-        if line.split()[0] == 'vt':
+        if line.split()[0] == 'v':      # some obj files does not contain 'vt' entries
             vertices.append([float(v) for v in line.split()[1:3]])
     vertices = np.vstack(vertices).astype(np.float32)
 
