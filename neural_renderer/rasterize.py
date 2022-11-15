@@ -308,13 +308,13 @@ def rasterize_rgbad(
         # pytorch does not support negative slicing for the moment
         # may need to look at this again because it seems to be very slow
         # rgb = rgb[:, :, ::-1, :]
-        rgb = rgb.flip(dims=[2])
+        rgb = rgb.flip(dims=[2, 3])
     if return_alpha:
         # alpha = alpha[:, ::-1, :]
-        alpha = alpha.flip(dims=[1])
+        alpha = alpha.flip(dims=[1, 2])
     if return_depth:
         # depth = depth[:, ::-1, :]
-        depth = depth.flip(dims=[1])
+        depth = depth.flip(dims=[1, 2])
 
     if anti_aliasing:
         # 0.5x down-sampling
