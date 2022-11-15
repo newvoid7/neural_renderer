@@ -82,12 +82,7 @@ class Renderer(nn.Module):
         else:
             raise ValueError("mode should be one of None, 'silhouettes' or 'depth'")
 
-    def render_silhouettes(self, vertices, faces, K=None, R=None, t=None, dist_coeffs=None, orig_size=None):
-
-        # fill back
-        if self.fill_back:
-            faces = torch.cat((faces, faces.flip(dims=[2])), dim=1)
-
+    def viewpoint_transformation(self, vertices):
         # viewpoint transformation
         if self.camera_mode == 'look_at':
             vertices = nr.look_at(vertices, self.eye, up=self.camera_up)
@@ -111,6 +106,16 @@ class Renderer(nn.Module):
             if orig_size is None:
                 orig_size = self.orig_size
             vertices = nr.projection(vertices, K, R, t, dist_coeffs, orig_size)
+        return vertices
+
+    def render_silhouettes(self, vertices, faces, K=None, R=None, t=None, dist_coeffs=None, orig_size=None):
+
+        # fill back
+        if self.fill_back:
+            faces = torch.cat((faces, faces.flip(dims=[2])), dim=1)
+
+        # viewpoint transformation
+        vertices = self.viewpoint_transformation(vertices)
 
         # rasterization
         faces = nr.vertices_to_faces(vertices, faces)
@@ -124,28 +129,7 @@ class Renderer(nn.Module):
             faces = torch.cat((faces, faces.flip(dims=[2])), dim=1).detach()
 
         # viewpoint transformation
-        if self.camera_mode == 'look_at':
-            vertices = nr.look_at(vertices, self.eye, up=self.camera_up)
-            # perspective transformation
-            if self.perspective:
-                vertices = nr.perspective(vertices, angle=self.viewing_angle)
-        elif self.camera_mode == 'look':
-            vertices = nr.look(vertices, self.eye, self.camera_direction, up=self.camera_up)
-            # perspective transformation
-            if self.perspective:
-                vertices = nr.perspective(vertices, angle=self.viewing_angle)
-        elif self.camera_mode == 'projection':
-            if K is None:
-                K = self.K
-            if R is None:
-                R = self.R
-            if t is None:
-                t = self.t
-            if dist_coeffs is None:
-                dist_coeffs = self.dist_coeffs
-            if orig_size is None:
-                orig_size = self.orig_size
-            vertices = nr.projection(vertices, K, R, t, dist_coeffs, orig_size)
+        vertices = self.viewpoint_transformation(vertices)
 
         # rasterization
         faces = nr.vertices_to_faces(vertices, faces)
@@ -170,28 +154,7 @@ class Renderer(nn.Module):
             self.light_direction)
 
         # viewpoint transformation
-        if self.camera_mode == 'look_at':
-            vertices = nr.look_at(vertices, self.eye, up=self.camera_up)
-            # perspective transformation
-            if self.perspective:
-                vertices = nr.perspective(vertices, angle=self.viewing_angle)
-        elif self.camera_mode == 'look':
-            vertices = nr.look(vertices, self.eye, self.camera_direction, up=self.camera_up)
-            # perspective transformation
-            if self.perspective:
-                vertices = nr.perspective(vertices, angle=self.viewing_angle)
-        elif self.camera_mode == 'projection':
-            if K is None:
-                K = self.K
-            if R is None:
-                R = self.R
-            if t is None:
-                t = self.t
-            if dist_coeffs is None:
-                dist_coeffs = self.dist_coeffs
-            if orig_size is None:
-                orig_size = self.orig_size
-            vertices = nr.projection(vertices, K, R, t, dist_coeffs, orig_size)
+        vertices = self.viewpoint_transformation(vertices)
 
         # rasterization
         faces = nr.vertices_to_faces(vertices, faces)
@@ -218,28 +181,7 @@ class Renderer(nn.Module):
             self.light_direction)
 
         # viewpoint transformation
-        if self.camera_mode == 'look_at':
-            vertices = nr.look_at(vertices, self.eye, up=self.camera_up)
-            # perspective transformation
-            if self.perspective:
-                vertices = nr.perspective(vertices, angle=self.viewing_angle)
-        elif self.camera_mode == 'look':
-            vertices = nr.look(vertices, self.eye, self.camera_direction, up=self.camera_up)
-            # perspective transformation
-            if self.perspective:
-                vertices = nr.perspective(vertices, angle=self.viewing_angle)
-        elif self.camera_mode == 'projection':
-            if K is None:
-                K = self.K
-            if R is None:
-                R = self.R
-            if t is None:
-                t = self.t
-            if dist_coeffs is None:
-                dist_coeffs = self.dist_coeffs
-            if orig_size is None:
-                orig_size = self.orig_size
-            vertices = nr.projection(vertices, K, R, t, dist_coeffs, orig_size)
+        vertices = self.viewpoint_transformation(vertices)
 
         # rasterization
         faces = nr.vertices_to_faces(vertices, faces)
