@@ -8,9 +8,10 @@ This repo is the minor fixed version of neural-renderer-pytorch forked from [PyT
 3. Added the atomicAdd function in `./cuda/rasterize_cuda_kernel.cu`.
 4. Added the "up" parameter in look.py and look_at.py, also changed the renderer.py.
 5. Updated the [::-1] operation by using flip method in rasterize.py.
+6. Filpped both the vertical and horizontal axes in the out image (rather than only the vertical axis). 
 
 ## Requirements
-Python 3.6+ and PyTorch 1.8.0+. Tested on Python 3.9 and PyTorch 1.10.1 as well.
+Python 3.6+ and PyTorch 1.8.0+ (GPU version, CUDA 10.1+). Tested on Python 3.9, PyTorch 1.10.1 and CUDA 11.1 as well.
 
 ## Installation
 You can install the package by running
