@@ -79,6 +79,8 @@ class Renderer(nn.Module):
             return self.render_silhouettes(vertices, faces, K, R, t, dist_coeffs, orig_size)
         elif mode == 'depth':
             return self.render_depth(vertices, faces, K, R, t, dist_coeffs, orig_size)
+        elif mode == 'label':
+            return self.render_label(vertices, faces, textures, K, R, t, dist_coeffs, orig_size)
         else:
             raise ValueError("mode should be one of None, 'silhouettes' or 'depth'")
 
@@ -152,6 +154,22 @@ class Renderer(nn.Module):
             self.light_color_ambient,
             self.light_color_directional,
             self.light_direction)
+
+        # viewpoint transformation
+        vertices = self.viewpoint_transformation(vertices)
+
+        # rasterization
+        faces = nr.vertices_to_faces(vertices, faces)
+        images = nr.rasterize(
+            faces, textures, self.image_size, self.anti_aliasing, self.near, self.far, self.rasterizer_eps,
+            self.background_color)
+        return images
+
+    def render_label(self, vertices, faces, textures, K=None, R=None, t=None, dist_coeffs=None, orig_size=None):
+        # fill back
+        if self.fill_back:
+            faces = torch.cat((faces, faces.flip(dims=[2])), dim=1).detach()
+            textures = torch.cat((textures, textures.permute((0, 1, 4, 3, 2, 5))), dim=1)
 
         # viewpoint transformation
         vertices = self.viewpoint_transformation(vertices)
