@@ -20,6 +20,9 @@ python setup.py install
 ```
 Since running install.py requires PyTorch, make sure to install PyTorch before running the above command. Needs **gcc 5.0+** also (which supports C++11), to compile the cuda files.
 
+### Install troubleshooting
+1. If you get "detected CUDA version (XX.X) mismatches the version that was used to compile PyTorch (YY.Y)", it means that you need to re-install PyTorch with the same cuda version. Go to [PyTorch official website](https://pytorch.org/), select the correct version in the "Compute Platform" row and get the install command. But in my condition, simply comment the lines raise the Error (~/.conda/envs/[YOUR_ENV_NAME]/lib/python3.8/site-packages/torch/utils/cpp_extension.py, line #386 and #387) will also work.
+
 ## Citation
 ```
 @InProceedings{kato2018renderer
